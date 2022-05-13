@@ -567,12 +567,11 @@ export class Clock extends ResponsiveElement {
   */
   private generateSegmentTemplate (name: string, value: number): TemplateResult {
     // tabindex="${ifDefined(this.interactive ? '0' : undefined)}"
-    // role="${ifDefined(this.interactive ? 'spinbutton' : undefined)}"
 
     return html`
     <div
         part="segment ${name}${ifDefined(this.isSegmentShifted(name) ? ' shifted' : '')}"
-        
+        role="${ifDefined(this.interactive ? 'spinbutton' : undefined)}"
       >
         ${padNumber(value, 2)}
         ${this.interactive ? this.generateButtonsTemplate(name) : undefined}
