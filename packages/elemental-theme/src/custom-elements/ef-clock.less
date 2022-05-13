@@ -74,14 +74,6 @@
     }
   }
 
-  [part~='hours']:focus, [part~='minutes']:focus, [part~='seconds']:focus {
-    color: @scheme-color-primary;
-
-    [part='increment-button'], [part='decrement-button'] {
-      display: block;
-    }
-  }
-
   // Analogue clock
   &[analogue] {
     border-radius: 100%;
@@ -188,4 +180,10 @@
     }
   }
 
+}
+
+:host(:focus) {
+  [focused]{
+    display: block;
+  }
 }

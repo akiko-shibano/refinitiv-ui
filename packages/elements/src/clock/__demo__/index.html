@@ -12,85 +12,39 @@
     </script>
 
     <demo-block header="Default" tags="Default">
-      <ef-clock></ef-clock>
-    </demo-block>
-
-    <demo-block header="Custom value" tags="custom-value">
-      <ef-clock value="13:30:40"></ef-clock>
-    </demo-block>
-
-    <demo-block header="Show seconds" tags="Show-seconds">
-      <ef-clock show-seconds></ef-clock>
-    </demo-block>
-
-    <demo-block header="AM / PM" tags="am-pm">
-      <ef-clock value="13:30:40" show-seconds am-pm></ef-clock>
-    </demo-block>
-
-    <demo-block header="Tick" tags="tick">
-      <ef-clock tick show-seconds></ef-clock>
-      <ef-clock tick show-seconds value="01:00:00"></ef-clock>
-      <ef-clock tick show-seconds value="02:00:00"></ef-clock>
+      <ef-clock value="08:01" aria-label="hello world"></ef-clock>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
     </demo-block>
 
     <demo-block header="Interactive" tags="interactive">
-      <ef-clock interactive></ef-clock>
-      <ef-clock interactive show-seconds></ef-clock>
+      <!-- <h3>Simulate clock</h3>
+      <div role="group" tabindex="0">
+        <div>Button1</div>
+        <div>Button2</div>
+      </div>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+      <div tabindex="0">
+        <div>Button1</div>
+        <div>Button2</div>
+      </div>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+      <div>
+        <div>Button1</div>
+        <div>Button2</div>
+      </div>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+      <div role="spinbutton">
+        <div>08</div>
+        <div aria-hidden="true">:</div>
+        <div>02</div>
+      </div>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+      <br/>
+      <h3>Real clock</h3> -->
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
+      <ef-clock value="08:01" interactive aria-label="hello world" tabindex="0"></ef-clock>
+      <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit.</p>
     </demo-block>
 
-    <demo-block header="Interactive and sync clock with the offset" tags="offset" id="offset-change">
-      <ef-clock interactive value="01:01:01" show-seconds></ef-clock>
-      <ef-clock interactive value="01:01:01" show-seconds></ef-clock>
-      <ef-clock interactive value="01:01:01" show-seconds></ef-clock>
-
-      <script>
-        (function () {
-          const interactiveClocks = document.querySelectorAll('#offset-change ef-clock');
-          interactiveClocks.forEach(clock => {
-            clock.addEventListener('offset-changed', event => {
-              interactiveClocks.forEach(clock => {
-                clock.offset = event.detail.value;
-              });
-            });
-          });
-        })();
-      </script>
-    </demo-block>
-
-    <demo-block header="Analogue Clock" tags="analogue">
-      <ef-clock analogue value="10:08:40"></ef-clock>
-      <ef-clock analogue show-seconds value="10:08:40"></ef-clock>
-    </demo-block>
-
-    <demo-block header="Analogue Clock with AM/PM" tags="analogue,am-pm">
-      <ef-clock analogue am-pm value="10:08:40"></ef-clock>
-      <ef-clock analogue am-pm show-seconds value="10:08:40"></ef-clock>
-    </demo-block>
-
-    <demo-block header="Analogue Clock Tick" tags="analogue,tick">
-      <ef-clock analogue value="10:08:40"></ef-clock>
-      <ef-clock analogue show-seconds tick value="10:08:40"></ef-clock>
-    </demo-block>
-
-    <demo-block header="Analogue Clock Interactive" tags="analogue,interactive">
-      <ef-clock analogue interactive value="10:08:40"></ef-clock>
-      <ef-clock analogue interactive show-seconds tick value="10:08:40"></ef-clock>
-    </demo-block>
-
-    <demo-block header="Responsive" tags="analogue,responsive">
-      <ef-clock analogue style="width:30%; margin-right: 20px;" value="10:08:40" show-seconds tick></ef-clock>
-      <ef-clock analogue value="10:08:40" show-seconds tick></ef-clock>
-      <ef-clock style="font-size: 2vw;" show-second am-pm></ef-clock>
-      <ef-clock style="font-size: 5vw;" show-second am-pm></ef-clock>
-      <ef-clock style="font-size: 10vw;" show-second am-pm></ef-clock>
-    </demo-block>
-
-    <demo-block header="Small Analogue Clock " tags="analogue, small">
-      <ef-clock style="width: 120px;" analogue show-seconds am-pm value="01:45:00"></ef-clock>
-      <ef-clock style="width: 64px;" analogue show-seconds am-pm value="01:45:00"></ef-clock>
-      <ef-clock style="width: 64px;" analogue show-seconds tick am-pm value="01:45:00"></ef-clock>
-      <ef-clock style="width: 64px; opacity: 0.6;" analogue value="01:45:00"></ef-clock>
-    </demo-block>
-    
   </body>
 </html>

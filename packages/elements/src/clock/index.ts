@@ -62,6 +62,8 @@ export class Clock extends ResponsiveElement {
     return VERSION;
   }
 
+  protected readonly defaultRole: string | null = 'group';
+
   /**
    * A `CSSResultGroup` that will be used
    * to style the host, slotted children
@@ -229,11 +231,32 @@ export class Clock extends ResponsiveElement {
   @property({ type: Boolean, attribute: 'show-seconds' })
   public showSeconds = false;
 
+
+  @state()
+  private state = 'hours';
+  private switchState (): void {
+    this.state = this.state === 'hours' ? 'minutes' : 'hours';
+  }
+
+  private _interactive = false;
+
   /**
    * Enabled interactive mode. Allowing the user to offset the value.
+   * @default false
    */
   @property({ type: Boolean })
-  public interactive = false;
+  public get interactive (): boolean {
+    return this._interactive;
+  }
+  public set interactive (value: boolean) {
+    const newValue = !!value;
+    const oldValue = this.interactive;
+    if (oldValue !== newValue) {
+      this._interactive = newValue;
+      this.tabIndex = newValue ? 0 : -1;
+      this.requestUpdate('interactive', oldValue);
+    }
+  }
 
   /**
   * Display clock in analogue style.
@@ -449,6 +472,7 @@ export class Clock extends ResponsiveElement {
    * @returns {void}
    */
   private onTapStart (event: TapEvent): void {
+    // TODO: click to focus segment
     if (event.target instanceof HTMLElement && event.target.dataset.key) {
       this.shift(event.target.dataset.key as UpOrDown, this.getShiftAmountFromTarget(event.target));
     }
@@ -464,11 +488,17 @@ export class Clock extends ResponsiveElement {
     switch (event.key) {
       case 'Up': // IE
       case 'ArrowUp':
-        this.handleUpKey(event);
+        this.handleUpKey();
         break;
       case 'Down': // IE
       case 'ArrowDown':
-        this.handleDownKey(event);
+        this.handleDownKey();
+        break;
+      case 'Left': // IE
+      case 'ArrowLeft':
+      case 'Right': // IE
+      case 'ArrowRight':
+        this.handleLeftRightKey();
         break;
       default:
         return;
@@ -482,8 +512,9 @@ export class Clock extends ResponsiveElement {
   * @param event Event Object
   * @returns {void}
   */
-  private handleUpKey (event: KeyboardEvent): void {
-    this.shift(UP, this.getShiftAmountFromTarget(event.target));
+  private handleUpKey (): void {
+    const testEle = this.renderRoot.querySelector(`[part~=${this.state}]`);
+    this.shift(UP, this.getShiftAmountFromTarget(testEle));
   }
 
   /**
@@ -491,19 +522,39 @@ export class Clock extends ResponsiveElement {
   * @param event Event Object
   * @returns {void}
   */
-  private handleDownKey (event: KeyboardEvent): void {
-    this.shift(DOWN, this.getShiftAmountFromTarget(event.target));
+  private handleDownKey (): void {
+    const testEle = this.renderRoot.querySelector(`[part~=${this.state}]`);
+    this.shift(DOWN, this.getShiftAmountFromTarget(testEle));
+  }
+
+  /**
+  * Handles Left key press
+  * @param event Event Object
+  * @returns {void}
+  */
+  private handleLeftRightKey (): void {
+    this.renderRoot.querySelector('[focusing]')?.removeAttribute('focusing');
+    this.renderRoot.querySelector('[focusing]')?.removeAttribute('focusing');
+    this.switchState();
+    this.renderRoot.querySelector(`[part~="${this.state}"]`)?.querySelector('[part="increment-button"]')?.setAttribute('focusing', '');
+    this.renderRoot.querySelector(`[part~="${this.state}"]`)?.querySelector('[part="decrement-button"]')?.setAttribute('focusing', '');
   }
 
   /**
   * Template for increment and decrement button
   * if interactive mode is enabled.
+  * @param segment TODO:
   * @returns {TemplateResult} template result
   */
-  private generateButtonsTemplate (): TemplateResult {
+  private generateButtonsTemplate (segment: string): TemplateResult {
+    const isFocused = segment === this.state;
     return html`
-      <div part="increment-button" role="button" data-key="${UP}"></div>
-      <div part="decrement-button" role="button" data-key="${DOWN}"></div>
+      <div part="increment-button" role="button" data-key="${UP}"
+      aria-hidden="true"
+      focused="${ifDefined(isFocused ? '' : undefined)}"></div>
+      <div part="decrement-button" role="button" data-key="${DOWN}"
+      aria-hidden="true"
+      focused="${ifDefined(isFocused ? '' : undefined)}"></div>
     `;
   }
 
@@ -515,10 +566,16 @@ export class Clock extends ResponsiveElement {
   * @returns {TemplateResult} template
   */
   private generateSegmentTemplate (name: string, value: number): TemplateResult {
+    // tabindex="${ifDefined(this.interactive ? '0' : undefined)}"
+    // role="${ifDefined(this.interactive ? 'spinbutton' : undefined)}"
+
     return html`
-      <div part="segment ${name}${ifDefined(this.isSegmentShifted(name) ? ' shifted' : '')}" tabindex="${ifDefined(this.interactive ? '0' : undefined)}">
+    <div
+        part="segment ${name}${ifDefined(this.isSegmentShifted(name) ? ' shifted' : '')}"
+        
+      >
         ${padNumber(value, 2)}
-        ${this.interactive ? this.generateButtonsTemplate() : undefined}
+        ${this.interactive ? this.generateButtonsTemplate(name) : undefined}
       </div>
     `;
   }
@@ -528,7 +585,7 @@ export class Clock extends ResponsiveElement {
   */
   private get dividerTemplate (): TemplateResult {
     return html`
-      <div part="segment divider">:</div>
+      <div part="segment divider" aria-hidden="true">:</div>
     `;
   }
 
@@ -601,7 +658,10 @@ export class Clock extends ResponsiveElement {
    */
   protected firstUpdated (changedProperties: PropertyValues): void {
     super.firstUpdated(changedProperties);
-    this.renderRoot.addEventListener('keydown', (event) => this.onKeydown(event as KeyboardEvent));
+    // TODO:
+    // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
+    this.addEventListener('keydown', (event) => this.onKeydown(event as KeyboardEvent));
+    // this.renderRoot.querySelector('#asd')?.addEventListener('keydown', (event) => this.onKeydown(event as KeyboardEvent));
     this.renderRoot.addEventListener('tapstart', (event) => this.onTapStart(event as TapEvent));
   }
 
@@ -610,6 +670,12 @@ export class Clock extends ResponsiveElement {
   * @returns {TemplateResult} template
   */
   protected get digitalClockTemplate (): TemplateResult {
+    // <div
+    // id="asd"
+    // role="${ifDefined(this.interactive ? 'spinbutton' : undefined)}"
+    // tabindex="${ifDefined(this.interactive ? '0' : undefined)}"
+    //   >
+    // </div>
     return html`
       ${this.hoursSegmentTemplate}
       ${this.dividerTemplate}
@@ -619,7 +685,21 @@ export class Clock extends ResponsiveElement {
       ${this.secondsSegmentTemplate}
       ` : undefined}
       ${this.amPm ? this.amPmTemplate : undefined}
+      ${this.screenReaderTemplate}
     `;
+  }
+
+  /**
+   * A template used to announce currently value for screen readers
+   * @returns template result
+   */
+  private get screenReaderTemplate (): TemplateResult | undefined {
+    const label = `${padNumber(this.displayHours, 2)}:${padNumber(this.displayMinutes, 2)}${this.showSeconds ? ':' + padNumber(this.displaySeconds, 2) : ''}${this.amPm ? ' ' + this.displayAmPm : ''}`;
+    return html`<div
+      role="status"
+      aria-live="polite"
+      aria-label="Time: ${label}"
+      ></div>`;
   }
 
   /**
