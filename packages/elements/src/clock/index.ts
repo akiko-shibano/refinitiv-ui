@@ -485,6 +485,14 @@ export class Clock extends ResponsiveElement {
   * @returns {void}
   */
   private manageControlKeys (event: KeyboardEvent): void {
+    if (event.defaultPrevented) {
+      return;
+    }
+
+    // Ignore special keys
+    if (event.shiftKey || event.ctrlKey || event.altKey || event.metaKey) {
+      return;
+    }
     switch (event.key) {
       case 'Up': // IE
       case 'ArrowUp':
@@ -503,8 +511,6 @@ export class Clock extends ResponsiveElement {
       default:
         return;
     }
-
-    event.preventDefault();
   }
 
   /**
